@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>game.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+game.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+
+<span class="s1">pygame.init()</span>
+<span class="s1">screen = pygame.display.set_mode((</span><span class="s2">500</span><span class="s0">, </span><span class="s2">500</span><span class="s1">))</span>
+<span class="s1">background = pygame.image.load(</span><span class="s3">&quot;background.jpg&quot;</span><span class="s1">)</span>
+<span class="s1">bg = pygame.transform.scale(background</span><span class="s0">, </span><span class="s1">(</span><span class="s2">500</span><span class="s0">, </span><span class="s2">500</span><span class="s1">))</span>
+
+<span class="s1">height = </span><span class="s2">500</span>
+<span class="s1">n = </span><span class="s2">0</span>
+<span class="s1">time = pygame.time.Clock()</span>
+
+<span class="s1">fly = </span><span class="s0">True</span>
+<span class="s0">while </span><span class="s1">fly:</span>
+    <span class="s1">time.tick(</span><span class="s2">40</span><span class="s1">)</span>
+    <span class="s1">screen.fill((</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+    <span class="s1">screen.blit(bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">n))</span>
+    <span class="s1">screen.blit(bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">-height+n))</span>
+
+    <span class="s0">if </span><span class="s1">n == height:</span>
+        <span class="s1">screen.blit(bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">-height+n))</span>
+        <span class="s1">n = </span><span class="s2">0</span>
+    <span class="s1">n += </span><span class="s2">1</span>
+
+    <span class="s1">pygame.display.update()</span></pre>
+</body>
+</html>

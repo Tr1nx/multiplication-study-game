@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>player.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+player.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+
+<span class="s0">class </span><span class="s1">Player(pygame.sprite.Sprite):</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">pos</span><span class="s0">, </span><span class="s1">constraint</span><span class="s0">, </span><span class="s1">speed):</span>
+        <span class="s1">super().__init__()</span>
+        <span class="s1">self.image = pygame.image.load(</span><span class="s2">&quot;ship.png&quot;</span><span class="s1">)</span>
+        <span class="s1">self.rect = self.image.get_rect(midbottom = pos)</span>
+        <span class="s1">self.speed = speed</span>
+        <span class="s1">self.max_x_constraint = constraint</span>
+        <span class="s1">self.max_y_constraint = constraint</span>
+
+    <span class="s0">def </span><span class="s1">controls(self):</span>
+        <span class="s1">keys = pygame.key.get_pressed()</span>
+
+        <span class="s0">if </span><span class="s1">keys[pygame.K_RIGHT]:</span>
+            <span class="s1">self.rect.x += self.speed</span>
+        <span class="s0">elif </span><span class="s1">keys[pygame.K_LEFT]:</span>
+            <span class="s1">self.rect.x -= self.speed</span>
+        <span class="s0">elif </span><span class="s1">keys[pygame.K_UP]:</span>
+            <span class="s1">self.rect.y -= self.speed</span>
+        <span class="s0">elif </span><span class="s1">keys[pygame.K_DOWN]:</span>
+            <span class="s1">self.rect.y += self.speed</span>
+
+    <span class="s0">def </span><span class="s1">constraint(self):</span>
+        <span class="s0">if </span><span class="s1">self.rect.left &lt;= </span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">self.rect.left = </span><span class="s3">0</span>
+        <span class="s0">if </span><span class="s1">self.rect.right &gt;= self.max_x_constraint:</span>
+            <span class="s1">self.rect.right = self.max_x_constraint</span>
+        <span class="s0">if </span><span class="s1">self.rect.top &lt;= </span><span class="s3">0</span><span class="s1">:</span>
+            <span class="s1">self.rect.top = </span><span class="s3">0</span>
+        <span class="s0">if </span><span class="s1">self.rect.bottom &gt;= self.max_y_constraint:</span>
+            <span class="s1">self.rect.bottom = self.max_y_constraint</span>
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+        <span class="s1">self.controls()</span>
+        <span class="s1">self.constraint()</span></pre>
+</body>
+</html>

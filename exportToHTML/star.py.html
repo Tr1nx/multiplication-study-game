@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>star.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+star.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span><span class="s0">, </span><span class="s1">random</span>
+
+<span class="s0">class </span><span class="s1">Star(pygame.sprite.Sprite):</span>
+
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">speed):</span>
+        <span class="s1">super().__init__()</span>
+        <span class="s1">self.image = pygame.image.load(</span><span class="s2">&quot;star.png&quot;</span><span class="s1">)</span>
+        <span class="s1">self.rect = self.image.get_rect(midtop = (x</span><span class="s0">, </span><span class="s1">y))</span>
+        <span class="s1">self.speed = speed</span>
+
+    <span class="s0">def </span><span class="s1">appear(self</span><span class="s0">, </span><span class="s1">width):</span>
+        <span class="s1">self.x = random.uniform(</span><span class="s3">0</span><span class="s0">, </span><span class="s1">width)</span>
+        <span class="s1">self.y = </span><span class="s3">0</span>
+        <span class="s1">self.vx = </span><span class="s3">0</span>
+        <span class="s1">self.vy = random.uniform(</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">update(self</span><span class="s0">, </span><span class="s1">speed):</span>
+        <span class="s1">self.x += self.vx * speed</span>
+        <span class="s1">self.y += self.vy * speed</span>
+
+
+    <span class="s0">def </span><span class="s1">constraint(self</span><span class="s0">, </span><span class="s1">height):</span>
+        <span class="s0">if </span><span class="s1">self.y &gt; height:</span>
+            <span class="s1">self.kill()</span>
+
+    <span class="s0">def </span><span class="s1">kill(self):</span>
+        <span class="s1">self.y = </span><span class="s3">0</span>
+        <span class="s1">self.x = random.uniform(</span><span class="s3">0</span><span class="s0">, </span><span class="s3">640</span><span class="s1">)</span>
+        <span class="s1">self.vy = random.uniform(</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s1">)</span>
+</pre>
+</body>
+</html>

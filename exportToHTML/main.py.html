@@ -1,0 +1,246 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #808080;}
+.s4 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+<span class="s0">import </span><span class="s1">random</span>
+<span class="s0">import </span><span class="s1">sys</span>
+<span class="s0">import </span><span class="s1">base64</span>
+
+<span class="s0">from </span><span class="s1">player </span><span class="s0">import </span><span class="s1">Player</span>
+<span class="s0">from </span><span class="s1">question </span><span class="s0">import </span><span class="s1">QuestionSprite</span>
+<span class="s0">from </span><span class="s1">star </span><span class="s0">import </span><span class="s1">Star</span>
+<span class="s0">from </span><span class="s1">textinputbox </span><span class="s0">import </span><span class="s1">TextInputBox</span>
+<span class="s0">from </span><span class="s1">questions </span><span class="s0">import </span><span class="s1">level_1_questions</span><span class="s0">, </span><span class="s1">level_2_questions</span>
+<span class="s0">from </span><span class="s1">obstacle </span><span class="s0">import </span><span class="s1">Asteroid</span>
+<span class="s0">from </span><span class="s1">buttons </span><span class="s0">import </span><span class="s1">Button</span><span class="s0">, </span><span class="s1">Button2</span><span class="s0">, </span><span class="s1">Button3</span>
+<span class="s0">from </span><span class="s1">io </span><span class="s0">import </span><span class="s1">BytesIO</span>
+<span class="s0">from </span><span class="s1">PIL </span><span class="s0">import </span><span class="s1">Image</span>
+<span class="s0">from </span><span class="s1">pic2str </span><span class="s0">import </span><span class="s1">background</span>
+<span class="s0">from </span><span class="s1">pic2str </span><span class="s0">import </span><span class="s1">background_music</span>
+
+
+<span class="s0">class </span><span class="s1">Game:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">speed):</span>
+        <span class="s1">self.intro = </span><span class="s0">True</span>
+        <span class="s1">self.end = </span><span class="s0">False</span>
+        <span class="s1">self.points = </span><span class="s2">0</span>
+        <span class="s1">self.level = </span><span class="s2">0</span>
+        <span class="s1">self.questions_list = []</span>
+        <span class="s1">self.text_boxes = []</span>
+        <span class="s1">self.screen = pygame.display.set_mode([width</span><span class="s0">, </span><span class="s1">height])</span>
+
+        <span class="s3"># Load byte data</span>
+        <span class="s1">byte_data = base64.b64decode(background)</span>
+        <span class="s1">image = Image.open(BytesIO(byte_data))</span>
+        <span class="s1">background_image = pygame.image.fromstring(image.tobytes()</span><span class="s0">, </span><span class="s1">image.size</span><span class="s0">, </span><span class="s1">image.mode)</span>
+
+        <span class="s1">self.background = background_image</span>
+        <span class="s1">self.bg = pygame.transform.scale(self.background</span><span class="s0">, </span><span class="s1">(width</span><span class="s0">, </span><span class="s1">height))</span>
+
+        <span class="s3"># Player setup</span>
+        <span class="s1">player_sprite = Player((width / </span><span class="s2">2</span><span class="s0">, </span><span class="s1">height)</span><span class="s0">, </span><span class="s1">width</span><span class="s0">, </span><span class="s1">speed)</span>
+        <span class="s1">self.player = pygame.sprite.GroupSingle(player_sprite)</span>
+
+        <span class="s3"># Star setup</span>
+        <span class="s1">star_sprite = Star(x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">speed)</span>
+        <span class="s1">self.star = pygame.sprite.GroupSingle(star_sprite)</span>
+
+        <span class="s3"># Asteroids setup</span>
+        <span class="s1">self.asteroids = []</span>
+        <span class="s1">asteroid_y = </span><span class="s2">5</span>
+        <span class="s0">for </span><span class="s1">_ </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">6</span><span class="s1">):</span>
+            <span class="s1">asteroid = Asteroid(random.randint(</span><span class="s2">10</span><span class="s0">, </span><span class="s1">width)</span><span class="s0">, </span><span class="s1">asteroid_y</span><span class="s0">, </span><span class="s1">speed</span><span class="s0">, </span><span class="s1">self)</span>
+            <span class="s3"># Set lag so that wouldn't appear all at once</span>
+            <span class="s1">asteroid_y -= </span><span class="s2">30</span>
+            <span class="s1">asteroid_sprite = pygame.sprite.GroupSingle(asteroid)</span>
+            <span class="s1">asteroid_sprite.draw(self.screen)</span>
+            <span class="s1">self.asteroids.append(asteroid_sprite)</span>
+
+    <span class="s0">def </span><span class="s1">run(self):</span>
+        <span class="s1">self.player.update()</span>
+        <span class="s1">self.star.update(height</span><span class="s0">, </span><span class="s1">width</span><span class="s0">, </span><span class="s1">self.player.sprite.rect.x</span><span class="s0">, </span><span class="s1">self.player.sprite.rect.y)</span>
+        <span class="s1">self.player.draw(self.screen)</span>
+        <span class="s1">self.star.draw(self.screen)</span>
+
+        <span class="s0">for </span><span class="s1">asteroid </span><span class="s0">in </span><span class="s1">self.asteroids:</span>
+            <span class="s1">asteroid.update(height</span><span class="s0">, </span><span class="s1">width</span><span class="s0">, </span><span class="s1">self.player.sprite.rect.x</span><span class="s0">, </span><span class="s1">self.player.sprite.rect.y)</span>
+            <span class="s1">asteroid.draw(self.screen)</span>
+
+    <span class="s0">def </span><span class="s1">collision(self):</span>
+        <span class="s0">return </span><span class="s1">(-</span><span class="s2">40 </span><span class="s1">&lt;= self.player.sprite.rect.x - self.star.sprite.rect.x &lt;= </span><span class="s2">20</span><span class="s1">) \</span>
+                <span class="s0">and </span><span class="s1">abs(self.player.sprite.rect.y - self.star.sprite.rect.y) &lt;= </span><span class="s2">20</span>
+
+    <span class="s0">def </span><span class="s1">ask_question(self</span><span class="s0">, </span><span class="s1">event_list):</span>
+        <span class="s3"># Take first question and textbox with correct answer from list</span>
+        <span class="s1">question = self.questions_list[</span><span class="s2">0</span><span class="s1">]</span>
+        <span class="s1">text_box = self.text_boxes[</span><span class="s2">0</span><span class="s1">]</span>
+        <span class="s1">question.draw(self.screen)</span>
+        <span class="s1">text_box.draw(self.screen)</span>
+        <span class="s1">text_box.update(event_list)</span>
+
+        <span class="s3"># Check if sprite has been killed</span>
+        <span class="s0">if </span><span class="s1">len(text_box.sprites()) == </span><span class="s2">0</span><span class="s1">:</span>
+            <span class="s3"># Remove question sprite</span>
+            <span class="s1">question.sprite.kill()</span>
+
+            <span class="s3"># Make star appear</span>
+            <span class="s1">self.star.sprite.rect.x = random.randint(</span><span class="s2">10</span><span class="s0">, </span><span class="s1">width)</span>
+            <span class="s1">self.star.sprite.rect.y = </span><span class="s2">5</span>
+            <span class="s1">self.star.draw(self.screen)</span>
+
+            <span class="s3"># Remove used question and text box from questions list</span>
+            <span class="s1">self.questions_list.pop(</span><span class="s2">0</span><span class="s1">)</span>
+            <span class="s1">self.text_boxes.pop(</span><span class="s2">0</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">intro_screen(self):</span>
+        <span class="s1">button = Button(</span><span class="s4">&quot;Mängi&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">300</span><span class="s0">, </span><span class="s2">260</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s1">button2 = Button2(</span><span class="s4">&quot;Välju&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">305</span><span class="s0">, </span><span class="s2">380</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s0">while </span><span class="s1">self.intro:</span>
+            <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+                <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                    <span class="s1">pygame.quit()</span>
+                <span class="s0">if </span><span class="s1">button.mouse_click(event):</span>
+                    <span class="s1">button.close(</span><span class="s2">0</span><span class="s1">)</span>
+                <span class="s0">if </span><span class="s1">button2.mouse_click(event):</span>
+                    <span class="s1">button2.close()</span>
+            <span class="s1">button.pack()</span>
+            <span class="s1">button2.pack()</span>
+            <span class="s1">time.tick(</span><span class="s2">40</span><span class="s1">)</span>
+            <span class="s1">pygame.display.update()</span>
+
+    <span class="s0">def </span><span class="s1">end_screen(self):</span>
+        <span class="s1">self.end = </span><span class="s0">True</span>
+        <span class="s1">self.screen = pygame.display.set_mode([width</span><span class="s0">, </span><span class="s1">height])</span>
+
+        <span class="s1">font = pygame.font.SysFont(</span><span class="s4">'Arial'</span><span class="s0">, </span><span class="s2">50</span><span class="s1">)</span>
+        <span class="s1">text = font.render(</span><span class="s4">&quot;Punktid: &quot; </span><span class="s1">+ str(game.points)</span><span class="s0">, True, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s1">))</span>
+        <span class="s1">button_play_again = Button3(</span><span class="s4">&quot;Mängi uuesti&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">260</span><span class="s0">, </span><span class="s2">305</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s1">button_exit = Button2(</span><span class="s4">&quot;Välju&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">320</span><span class="s0">, </span><span class="s2">405</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s0">while </span><span class="s1">self.end:</span>
+            <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+                <span class="s1">self.screen.blit(text</span><span class="s0">, </span><span class="s1">(</span><span class="s2">250</span><span class="s0">, </span><span class="s2">205</span><span class="s1">))</span>
+                <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                    <span class="s1">pygame.quit()</span>
+                <span class="s0">if </span><span class="s1">button_play_again.mouse_click(event):</span>
+                    <span class="s1">button_play_again.close()</span>
+                <span class="s0">if </span><span class="s1">button_exit.mouse_click(event):</span>
+                    <span class="s1">button_exit.close()</span>
+            <span class="s1">button_play_again.pack()</span>
+            <span class="s1">button_exit.pack()</span>
+            <span class="s1">time.tick(</span><span class="s2">40</span><span class="s1">)</span>
+            <span class="s1">pygame.display.update()</span>
+
+    <span class="s0">def </span><span class="s1">choose_level(self):</span>
+        <span class="s1">button_level_1 = Button(</span><span class="s4">&quot;Tase 1&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">290</span><span class="s0">, </span><span class="s2">140</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s1">button_level_2 = Button(</span><span class="s4">&quot;Tase 2&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">290</span><span class="s0">, </span><span class="s2">260</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s1">button_exit = Button2(</span><span class="s4">&quot;Välju&quot;</span><span class="s0">, </span><span class="s1">(</span><span class="s2">305</span><span class="s0">, </span><span class="s2">380</span><span class="s1">)</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s1">game</span><span class="s0">, </span><span class="s1">self.screen</span><span class="s0">, </span><span class="s4">&quot;navy&quot;</span><span class="s1">)</span>
+        <span class="s0">while </span><span class="s1">self.level == </span><span class="s2">0</span><span class="s1">:</span>
+            <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+                <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                    <span class="s1">pygame.quit()</span>
+                <span class="s0">if </span><span class="s1">button_level_1.mouse_click(event):</span>
+                    <span class="s1">button_level_1.close(</span><span class="s2">1</span><span class="s1">)</span>
+                <span class="s0">if </span><span class="s1">button_level_2.mouse_click(event):</span>
+                    <span class="s1">button_level_2.close(</span><span class="s2">2</span><span class="s1">)</span>
+                <span class="s0">if </span><span class="s1">button_exit.mouse_click(event):</span>
+                    <span class="s1">button_exit.close()</span>
+            <span class="s1">button_level_1.pack()</span>
+            <span class="s1">button_level_2.pack()</span>
+            <span class="s1">button_exit.pack()</span>
+            <span class="s1">time.tick(</span><span class="s2">40</span><span class="s1">)</span>
+            <span class="s1">pygame.display.update()</span>
+        <span class="s1">game.load_questions()</span>
+
+    <span class="s0">def </span><span class="s1">load_questions(self):</span>
+        <span class="s3"># Questions list setup</span>
+        <span class="s0">if </span><span class="s1">self.level == </span><span class="s2">1</span><span class="s1">:</span>
+            <span class="s1">questions = level_1_questions</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s1">questions = level_2_questions</span>
+        <span class="s1">random.shuffle(questions)</span>
+
+        <span class="s3"># Create group of all questions and group of answer boxes</span>
+        <span class="s1">questions_list = []</span>
+        <span class="s1">text_boxes = []</span>
+        <span class="s0">for </span><span class="s1">q </span><span class="s0">in </span><span class="s1">questions:</span>
+            <span class="s1">q_sprite = QuestionSprite(</span><span class="s2">350</span><span class="s0">, </span><span class="s2">300</span><span class="s0">, </span><span class="s1">q.question)</span>
+            <span class="s1">t_sprite = TextInputBox(</span><span class="s2">200</span><span class="s0">, </span><span class="s2">350</span><span class="s0">, </span><span class="s2">300</span><span class="s0">, </span><span class="s1">q.answer</span><span class="s0">, </span><span class="s1">self)</span>
+            <span class="s1">questions_list.append(pygame.sprite.GroupSingle(q_sprite))</span>
+            <span class="s1">text_boxes.append(pygame.sprite.GroupSingle(t_sprite))</span>
+        <span class="s1">self.questions_list = questions_list</span>
+        <span class="s1">self.text_boxes = text_boxes</span>
+
+    <span class="s0">def </span><span class="s1">play(self):</span>
+        <span class="s1">self.screen = pygame.display.set_mode([width</span><span class="s0">, </span><span class="s1">height])</span>
+        <span class="s1">music_data = base64.b64decode(background_music)</span>
+        <span class="s1">pygame.mixer.music.load(BytesIO(music_data))</span>
+        <span class="s1">pygame.mixer.music.play(-</span><span class="s2">1</span><span class="s1">)</span>
+        <span class="s1">pygame.mixer.music.set_volume(</span><span class="s2">0.1</span><span class="s1">)</span>
+        <span class="s1">n = </span><span class="s2">0</span>
+
+        <span class="s1">game.intro_screen()</span>
+        <span class="s1">game.choose_level()</span>
+
+
+        <span class="s0">while </span><span class="s1">len(game.questions_list) &gt; </span><span class="s2">0</span><span class="s1">:</span>
+            <span class="s1">time.tick(</span><span class="s2">40</span><span class="s1">)</span>
+            <span class="s1">self.screen.fill((</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+            <span class="s1">self.screen.blit(self.bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">n))</span>
+            <span class="s1">self.screen.blit(self.bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">-height + n))</span>
+
+            <span class="s0">if </span><span class="s1">n == height:</span>
+                <span class="s1">self.screen.blit(self.bg</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">-height + n))</span>
+                <span class="s1">n = </span><span class="s2">0</span>
+            <span class="s1">n += </span><span class="s2">1</span>
+
+            <span class="s1">font = pygame.font.SysFont(</span><span class="s4">'Arial'</span><span class="s0">, </span><span class="s2">25</span><span class="s1">)</span>
+            <span class="s1">text = font.render(</span><span class="s4">&quot;Punktid: &quot; </span><span class="s1">+ str(game.points)</span><span class="s0">, True, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s1">))</span>
+            <span class="s1">self.screen.blit(text</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+
+            <span class="s1">event_list = pygame.event.get()</span>
+
+            <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+                <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                    <span class="s1">pygame.quit()</span>
+                    <span class="s1">sys.exit()</span>
+
+            <span class="s0">if </span><span class="s1">game.collision():</span>
+                <span class="s1">game.ask_question(event_list)</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">game.run()</span>
+
+            <span class="s1">pygame.display.update()</span>
+
+        <span class="s1">game.end_screen()</span>
+
+
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s4">'__main__'</span><span class="s1">:</span>
+    <span class="s1">pygame.init()</span>
+    <span class="s1">width = </span><span class="s2">700</span>
+    <span class="s1">height = </span><span class="s2">700</span>
+    <span class="s1">star_x = random.randint(</span><span class="s2">10</span><span class="s0">, </span><span class="s1">width)</span>
+    <span class="s1">star_y = </span><span class="s2">5</span>
+    <span class="s1">speed = </span><span class="s2">3</span>
+    <span class="s1">game = Game(star_x</span><span class="s0">, </span><span class="s1">star_y</span><span class="s0">, </span><span class="s1">speed)</span>
+    <span class="s1">time = pygame.time.Clock()</span>
+
+    <span class="s0">while not </span><span class="s1">game.end:</span>
+        <span class="s1">game.play()</span>
+</pre>
+</body>
+</html>
