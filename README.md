@@ -4,6 +4,6 @@ Note: If you encounter the message 'Microsoft Defender SmartScreen prevented an 
 
 Click 'More info.'
 Select 'Run anyway.'
-This will allow you to launch the game without any issues.
+This will allow you to launch the game.
 
 Please note: there is a known issue with exiting the game. To exit, catch a star, and when the multiplying question appears, close the window.
